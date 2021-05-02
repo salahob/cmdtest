@@ -1,0 +1,40 @@
+module.exports = {
+  name: "allch",
+  aliases: [""],
+  description: "",
+  category: "utility",
+  usage: "suggest <embed>",
+  run: async (client, message, args) => {
+    
+	let user =
+		message.mentions.users.first() || message.guild.members.cache.get(args[1]);
+
+		if (!message.guild.member(message.author).hasPermission('ADMINSTRATOR')) {
+			return
+    }
+		if (!message.guild.member(client.user).hasPermission('MANAGE_ROLES')) {
+			return message.channel.send(
+				'I Need Permissions !!'
+			)};
+		if (!user)
+			return message.channel.send(`for ?`);
+		let prison = message.guild.roles.cache.find(role => role.name === 'allChannels');
+		if (!prison)
+			prison = await message.guild.roles.create({
+				data: {
+					name: 'allChannels',
+					color: '#999999',
+					permissions: []
+				}
+			});
+		message.guild.channels.cache.forEach(async channel => {
+			await channel.createOverwrite(prison, {
+				SEND_MESSAGES: true,
+				CONNECT: true,
+				VIEW_CHANNEL: true,
+				MOVE_MEMBERS: true
+			});
+		});
+		message.guild.member(user).roles.add(prison);
+		message.channel.send(`${user} is a verified friend now`);
+	}}
